@@ -29,8 +29,8 @@
     <link rel="stylesheet" type="text/css" href="../bootstrap/bootstrap.min.css?changed=2017083001">
     <link rel="stylesheet" type="text/css" href="../animate.css?changed=2017083001">
     <link rel="stylesheet" type="text/css" href="../css/tagify.css?changed=11662">
-    <link rel="stylesheet" type="text/css" href="../custom.css?changed=20220721002" media="only screen and (min-device-width: 480px)">
-    <link rel="stylesheet" type="text/css" href="../custom_mobile.css?changed=20220721002" media="only screen and (max-device-width: 480px)">
+    <link rel="stylesheet" type="text/css" href="../custom.css?changed=20240225001" media="only screen and (min-device-width: 480px)">
+    <link rel="stylesheet" type="text/css" href="../custom_mobile.css?changed=20240225001" media="only screen and (max-device-width: 480px)">
     <link rel="stylesheet" type="text/css" href="../css/jquery.dataTables.min.css?changed=2017083001">
     <link rel="stylesheet" type="text/css" href="../css/bootstrap-multiselect.css?changed=20230107001" />
     <link rel="stylesheet" type="text/css" href="../css/font-awesome.min.css?changed=2017083001">
@@ -49,6 +49,18 @@
             </button>
         </div>
         <hr />
+
+        <div id="warning-external-access" hidden class="alert alert-danger text-center" role="alert">
+            <strong>
+                <span class="glyphicon glyphicon-alert"></span> Security Risk: Your instance has external access enabled without using an admin password. <span class="glyphicon glyphicon-alert"></span>
+              <button id="remind-external-access-button" title="Remind me again later" class="btn btn-success btn-xs">
+                  <span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span>
+              </button>
+              <button id="dismiss-external-access-button" title="Do not show again" class="btn btn-danger btn-xs">
+                  <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
+              </button>
+            </strong>
+        </div>
 
         <div id="can-upgrade-from-mono" hidden class="alert alert-info" role="alert">
             <strong>Standalone version of Jackett is now available - Mono not required</strong> <br>
@@ -469,7 +481,9 @@
                                     <td class="fit">{{jacketTimespan PublishDate}}</td>
                                     <td class="fit">{{jacketTimespan FirstSeen}}</td>
                                     <td class="fit">{{Tracker}}</td>
-                                    <td class="Title" style="word-break: break-all"><a href="{{Details}}" target="_blank">{{Title}}</a> <span class="release-labels"></span></td>
+                                    <td class="Title" style="word-break: break-all">
+                                        {{#if Details}}<a href="{{Details}}" target="_blank">{{Title}}</a>{{else}}{{Title}}{{/if}} <span class="release-labels"></span>
+                                    </td>
                                     <td class="fit">{{Size}}</td>
                                     <td class="fit">{{jacketSize Size}}</td>
                                     <td class="fit">{{Files}}</td>
@@ -561,14 +575,35 @@
 
     <script id="jackett-search-results" type="text/x-handlebars-template">
         <hr />
-        <p>Your search was done using:
-            {{#each Indexers}}{{Name}}
+        <span class="indexers">Your search was done using:
+        {{#each Indexers}}
+            <span
             {{#if Error}}
-            (<span title="{{Error}}"><b>Error</b></span>)
+                class="error"
             {{else}}
-            ({{Results}})
+                {{#ifCond Results 0}}
+                class="no-results"
+                {{/ifCond}}
             {{/if}}
-            , {{/each}}
+            >
+            {{Name}}
+            {{#if Error}}
+                (<span title="{{Error}}"<b>Error</b></span>)
+            {{~else~}}
+                ({{~Results~}})
+                {{#if ElapsedTime}}
+                    <span title="Elapsed time">[{{~ElapsedTime~}}ms]</span>
+                {{~else~}}
+                    <span title="Elapsed time">[cache]</span>
+                {{~/if~}}
+            {{~/if~}}
+            {{~#if @last~}}
+                    .
+                {{~else~}}
+                    ,
+            {{~/if~}}
+            </span>
+        {{/each}}
         </p>
         <datalist id="jackett-search-saved-presets"></datalist>
         <table id="jackett-search-results-datatable" class="dataTable compact cell-border hover stripe">
@@ -596,7 +631,9 @@
                     <td class="text-center">{{PublishDate}}</td>
                     <td class="text-center" title="{{dateFormat PublishDate format="YYYY-MM-DD HH:mm:ss Z"}}">{{jacketTimespan PublishDate}}</td>
                     <td class="text-center">{{Tracker}}</td>
-                    <td class="Title" style="word-break: break-all"><a href="{{Details}}" target="_blank">{{Title}}</a> <span class="release-labels"></span></td>
+                    <td class="Title" style="word-break: break-all">
+                        {{#if Details}}<a href="{{Details}}" target="_blank">{{Title}}</a>{{else}}{{Title}}{{/if}} <span class="release-labels"></span>
+                    </td>
                     <td class="text-right">{{Size}}</td>
                     <td class="text-right fit">{{jacketSize Size}}</td>
                     <td class="text-center">{{Files}}</td>
@@ -760,6 +797,6 @@
     </script>
 
     <script type="text/javascript" src="../libs/api.js?changed=2017083001"></script>
-    <script type="text/javascript" src="../custom.js?changed=2023071401"></script>
+    <script type="text/javascript" src="../custom.js?changed=20240420v1"></script>
 </body>
 </html>
